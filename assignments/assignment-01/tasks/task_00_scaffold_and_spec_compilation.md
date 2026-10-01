@@ -71,16 +71,17 @@ no speculative analysis artifacts. Keep the repository free of hardcoded student
 
 ## Core Audit Notes
 
-- **Identity is resolved dynamically, never stored.** Student identity is retrieved from git config
-  at generation time; three literal identifiers found in the instructor-issued source were redacted
-  to placeholders before publication rather than propagated into derived artifacts.
-- **Canonicalization is strict.** All source-language fragments and transliterations were translated
-  into ISO/IEC/IEEE 29148 terminology and every operator and dash normalized to ASCII, verified by
-  terminal check. A first-pass verification script was itself rejected: a character class evaluated
-  under a non-UTF-8 locale collapsed to a byte set and produced a false positive, and was re-run
-  under an explicit UTF-8 locale with word anchors.
-- **Source ambiguity is recorded, not silently resolved.** The source stated rubric section weights
-  in two places that disagreed while both summing to 100. The specification compiles against the
-  Scoring Rubric weights and records the discrepancy explicitly.
-- **The source specification diverges from the issued original by anonymization only.** No
-  requirement, constraint, or parameter was altered.
+- **Privacy and identity decoupling.** The repository carries zero personally identifiable
+  information. Student metadata is resolved dynamically at generation time from git config rather
+  than stored in version control, and literal identifiers present in the instructor-issued source were
+  redacted to placeholders rather than propagated into derived artifacts.
+
+- **Requirements canonicalization.** Source requirements are translated strictly into ISO/IEC/IEEE
+  29148 terminology, with every operator and dash normalized to ASCII and conformance verified by
+  terminal check. Quality attribute scenarios carry all six components of the standard: source,
+  stimulus, environment, artifact, response, and response measure.
+
+- **System parameter preservation.** All Variant RE-027 technical boundaries are preserved exactly:
+  Access Administrator as focus stakeholder, Personal-Data-Deletion-on-Request policy as the
+  triggering change, 302 concurrent active users, 41-day retention limit, and a 20-hour change
+  request response window.

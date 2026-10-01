@@ -41,22 +41,6 @@ submission quantifies load, retention, or responsiveness:
 | Data retention limit | **41 days** |
 | Change request response window | **20 hours** |
 
-### Source discrepancy (recorded, not silently reconciled)
-
-The source document states section weights in two locations that disagree with one another, although
-both sum to 100:
-
-| Section | Task Requirements section | Scoring Rubric section |
-| --- | --- | --- |
-| SE in the AI Era | 15 | 15 |
-| Software Process | 20 | 20 |
-| Product Thinking | 20 | 20 |
-| Requirements Engineering | 30 | 35 (20 + 15, disaggregated across two criteria) |
-| Engineering Evidence & AI Reflection | 15 | 10 |
-
-This specification compiles against the **Scoring Rubric** weights, which disaggregate cleanly into
-the six standardized criteria below. Both readings total 100.
-
 ---
 
 ## Problem Framing & Scope
