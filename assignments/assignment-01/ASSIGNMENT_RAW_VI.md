@@ -17,14 +17,14 @@ Nộp bài cá nhân trực tiếp vào Assignment tương ứng trên Google Cl
 
 2. File phải nộp
 • Nộp 01 file PDF duy nhất.
-• Tên file: BT1_23001857_<Mã biến thể>.pdf
-Ví dụ: BT1_23001898_RE-001.pdf
+• Tên file: BT1_<STUDENT_ID>_<Mã biến thể>.pdf
+Ví dụ: BT1_<STUDENT_ID>_RE-001.pdf
 • Tối đa 6 trang nội dung chính; phụ lục khai báo sử dụng AI không tính vào giới hạn 6 trang.
 • Không nộp file Word, ZIP hoặc đường dẫn yêu cầu giảng viên cấp quyền truy cập.
 
 3. Thông tin bắt buộc ở trang đầu
 • Họ và tên.
-• Mã sinh viên: 23001857.
+• Mã sinh viên: <STUDENT_ID>.
 • Mã biến thể được ghi trong tên bài.
 • Team ID và mã đề tài của nhóm.
 • Cam kết: “Tôi chịu trách nhiệm về toàn bộ nội dung bài làm và đã khai báo việc sử dụng AI.”
