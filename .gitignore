@@ -1,0 +1,36 @@
+# --- Operating system artifacts ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --- Editor / IDE settings ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Dependencies ---
+node_modules/
+vendor/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# --- Build output ---
+dist/
+build/
+*.class
+*.jar
+target/
+
+# --- Environment secrets ---
+.env*
+!.env.example
+
+# --- Local identity / config files ---
+*.local.*
+*.local.json
