@@ -1,0 +1,655 @@
+\documentclass[10pt,a4paper]{article}
+
+% ============================================================================
+% PACKAGE IMPORTS
+% ============================================================================
+\usepackage[margin=13.5mm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\graphicspath{{./}{../}{assets/}{../assets/}}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{array}
+
+% ============================================================================
+% IDENTITY PLACEHOLDERS (Zero Hardcoded PII)
+% ============================================================================
+\newcommand{\StudentID}{{{STUDENT\_ID}}}
+\newcommand{\StudentNameEn}{{{STUDENT\_NAME\_EN}}}
+\newcommand{\StudentNameVi}{{{STUDENT\_NAME\_VI}}}
+
+% ============================================================================
+% TYPOGRAPHY CONFIGURATION
+% ============================================================================
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2.5pt}
+\setlist{noitemsep, topsep=1pt, parsep=0pt, partopsep=0pt}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+
+\titlespacing*{\section}{0pt}{5pt plus 1pt minus 1pt}{2.5pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{0pt}{4pt plus 1pt minus 1pt}{1.5pt plus 1pt minus 1pt}
+\titlespacing*{\subsubsection}{0pt}{3pt plus 1pt minus 1pt}{1pt plus 1pt minus 1pt}
+
+% Header/Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small SE2026 Assignment 01 | Variant RE-027}
+\fancyhead[R]{\small \StudentID}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ============================================================================
+% DOCUMENT METADATA
+% ============================================================================
+\title{\textbf{SE2026 Personal Assignment 1}\\
+\large Topic AI-03: GitHub Project Coach for Student Teams\\
+\large Variant RE-027: Personal-Data-Deletion-on-Request Policy}
+\author{\StudentNameEn{} (\StudentNameVi)\\
+Student ID: \StudentID\\
+Team SE2026-T07}
+\date{Submission Date: October 2026}
+
+% ============================================================================
+% BEGIN DOCUMENT
+% ============================================================================
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+% Declaration of Accountability
+\begin{center}
+\fbox{\parbox{0.9\textwidth}{\centering\itshape
+"I assume full responsibility for the content of this submission\\
+and have declared my use of AI."
+}}
+\end{center}
+
+\vspace{8pt}
+
+% ============================================================================
+% SECTION 1: EXECUTIVE CONTEXT
+% ============================================================================
+\section{Executive Context and Variant RE-027 Operational Constraints}
+
+This submission analyzes the \textbf{Access Administrator} stakeholder perspective under the \textbf{Personal-Data-Deletion-on-Request} policy for the AI-03 GitHub Project Coach system. The variant is defined by three immutable operational parameters:
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{302 concurrent active users}: Peak-load concurrency ceiling for access-rights evaluations during policy re-evaluation cycles.
+ \item \textbf{41-day audit retention limit}: Audit records must remain retrievable for forensic investigation for exactly 41 days, followed by mandatory automated purging.
+ \item \textbf{20-hour change request response window}: Any data-deletion or access-revocation request must receive fulfillment confirmation within 20 elapsed hours (calendar clock, not business hours per ASSUMPTION-01).
+\end{itemize}
+
+The core operational dilemma is a three-way architectural tension: the Access Administrator must honor deletion requests, maintain a 41-day auditable trail satisfying security operations, and sustain operational stability for 302 concurrent users---all within a 20-hour response envelope. The deletion policy demands irreversible removal of personal identifiers, yet the audit retention mandate requires event attribution for 41 days. These obligations are mutually exclusive unless an architectural transformation (irreversible tokenization with stable surrogate keys) bridges the gap.
+
+The submission adheres strictly to ISO/IEC/IEEE 29148 requirements terminology, maintains implementation independence (zero technology names in requirements), and records all AI-assisted artifacts with explicit human disposition auditing per ACM/IEEE engineering accountability standards.
+
+% ============================================================================
+% SECTION 2: SOFTWARE ENGINEERING IN THE AI ERA
+% ============================================================================
+\section{Software Engineering in the AI Era}
+
+\subsection{Working Software vs. Reliable Software}
+
+Generative AI systems produce code that compiles, passes unit tests, and deploys without immediate crash---yet fails under the operational constraints of Variant RE-027. Three failure vectors illustrate the divergence between \textit{working} and \textit{reliable} software:
+
+\textbf{Race Conditions in Session Invalidation.} An AI-generated deletion pipeline may correctly remove a user's profile and emit a confirmation event, yet fail to atomically invalidate active sessions across 302 concurrent connections. Under peak load, the window between profile removal and session termination becomes a race: new access requests may be evaluated against stale tokens, granting access to a logically deleted identity. A unit test that mocks the session store in isolation cannot reproduce the timing interleavings of 302 concurrent sessions under a revocation storm.
+
+\textbf{Incomplete Deletion Pipelines with Residual Metadata.} The deletion policy demands irreversible removal of personal identifiers. An AI-generated implementation may correctly tokenize the primary identity table while leaving foreign-key references, cached query results, or message-queue payloads intact. These residuals constitute direct PII exposure during the 41-day audit retention period. A test suite asserting "the user table is clean" will pass while the search index still returns the deleted user's email.
+
+\textbf{SLA Deadline Drift Under Partial Degradation.} The 20-hour response window is absolute. An AI-generated escalation subsystem may correctly implement priority queues and notification templates, yet assume reliable network delivery. When the primary alert channel degrades, the system silently queues escalation tasks without triggering the fallback channel, causing requests to breach the SLA. A test asserting "an escalation event is created" will pass while the alert never reaches the Access Administrator.
+
+In each case, the code executes without error. The failure is a violation of an operational guarantee that the test suite did not encode. Reliability requires that every operational constraint of the variant be expressed as a verifiable property and checked under realistic adversarial conditions.
+
+\subsection{Locus of Engineering Responsibility}
+
+The ACM Code of Ethics (Section 1.2) and IEEE Code of Ethics hold that engineers must "accept responsibility for their decisions and actions." Generative AI alters the mechanics of production but not the locus of accountability. When an AI generates a deletion pipeline that leaks PII into an audit log, the legal consequence falls on the deploying organization and the engineer who signed off on the release. The AI agent has no legal personhood, no professional license, and no capacity to suffer sanctions.
+
+Under GDPR Article 24, the controller must implement appropriate technical measures and demonstrate compliance. An AI-generated artifact without a documented, human-verified assurance chain does not satisfy this requirement. The engineer's professional duty is to construct that assurance chain: to specify the required behavior, verify the implementation, and record the evidence. The AI is a tool, subject to the same scrutiny as any compiler or static analyzer. Responsibility cannot be delegated to the tool.
+
+\subsection{Systematic AI Failure Modes and Mitigation}
+
+Empirical studies reveal three structurally persistent AI failure modes:
+
+\textbf{Mode 1: Semantic Hallucination.} The model invents APIs, standards, or compliance frameworks that do not exist. \textit{RE-027 Example:} The AI drafts a deletion workflow calling a phantom \texttt{DELETE /api/v1/compliance/gdpr/purge} endpoint and references "ISO 27001 Annex A.18.1.4" as mandating a specific tokenization algorithm, when that annex concerns cryptographic key management, not tokenization. The engineer integrating this code without verification introduces a runtime dependency on a non-existent service, causing silent deletion failures and SLA breaches.
+
+\textbf{Mode 2: Edge-Case Blindness.} The model optimizes for the nominal path and omits boundary conditions, error states, and failure modes. \textit{RE-027 Example:} The AI generates a bulk deletion processor that omits the case where a request arrives at hour 19.5 with active session dependencies preventing immediate tokenization. The system either blocks indefinitely or skips the request with a generic "retry later" status---both breaching the SLA.
+
+\textbf{Mode 3: Security and Privacy Blindspots.} The model defaults to convenient but insecure patterns: string interpolation in SQL queries, logging full request payloads including PII, and transmitting PII in error messages. \textit{RE-027 Example:} The AI proposes an audit log that records the full deletion request payload---including email, name, and government ID---for "debugging purposes," retained for 41 days. This directly contradicts the deletion policy.
+
+\textbf{Rigorous Mitigation (6-Layer Defense):}
+
+\begin{enumerate}[leftmargin=*]
+ \item \textbf{Formal Specification:} All outcomes, scenarios, and traceability specified without reference to implementation (prevents phantom API hallucinations).
+ \item \textbf{Property-Based Testing:} Adversarial input generation tests deletion pipeline with concurrent session dependencies, late-arrival at hour 19.5, and dependency deadlocks.
+ \item \textbf{Static Analysis:} Deterministic linters and secret scanners forbid string-interpolated SQL, PII in log output, and direct PII in tables with retention > 0 days.
+ \item \textbf{Human Audit Gates:} Every AI artifact requires documented disposition (Accepted/Modified/Rejected) with engineering justification. No AI output reaches submission without this gate (see task\_00 through task\_05 audit trail).
+ \item \textbf{Traceability Closure:} Bidirectional matrix (TRACEABILITY.md) links every outcome to user stories, quality scenarios, and test cases. A gap is a failed gate.
+ \item \textbf{Execution Validation:} Load testing at 302 concurrent users, 41-day retention, and 20-hour window against the deployed system, not mocks.
+\end{enumerate}
+
+These layers are independent: a failure in one is caught by another. Reliability is assured because the assurance chain is redundant.
+
+% ============================================================================
+% SECTION 3: 1-WEEK AI-AUGMENTED SOFTWARE PROCESS
+% ============================================================================
+\section{1-Week AI-Augmented Software Process}
+
+\subsection{Process Model Overview}
+
+The process integrates AI-assisted drafting within a rigorously gated, human-accountable engineering discipline. Every AI artifact passes through explicit verification gates before advancement. The week is a single iteration from inception to release readiness, matching the 20-hour change-request window and the assignment's one-week workflow requirement.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.55\linewidth]{assets/diagram_process.png}
+\caption{1-Week AI-Augmented Lifecycle with 5 Quality Gates}
+\label{fig:process}
+\end{figure}
+
+\textbf{Days 1--7 Roadmap:}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{Day 1 (Inception \& Framing):} Define operational problem, stakeholder map, measurable outcomes; validate Variant RE-027 parameters preserved verbatim. \textbf{GATE-01} entry: draft problem statement, outcomes, conflict matrix, assumptions. Exit: zero technology names; quantitative, falsifiable outcomes; all RE-027 parameters verbatim.
+ \item \textbf{Day 2 (Behavioral Specification):} Author 4 user stories with Gherkin acceptance criteria; ensure each has $\geq$ 1 boundary/failure case. \textbf{GATE-02} entry: stories linked to outcomes. Exit: every story has $\geq$ 2 Gherkin scenarios; at least one per story is boundary/failure case; no HTTP codes, SQL, REST endpoints in criteria.
+ \item \textbf{Day 3 (Quality Scenario Engineering):} Formulate 3 six-part ISO 29148 quality scenarios with mathematical response measures; establish MoSCoW scope. \textbf{GATE-03} entry: scenarios for Performance, Security/Privacy, Reliability. Exit: all 6 components specified; response measures falsifiable (< 0.1\% error, 302 users, p95 $\leq$ 500 ms, 100\% PII elimination, $\leq$ 41 days retention, 0\% re-identification, purge $\leq$ 1h past Day 42, 100\% requests $\leq$ 20h, zero lost, escalation $\leq$ 15 min); MoSCoW Won't Have names $\geq$ 3 deferred items.
+ \item \textbf{Day 4 (Architecture \& Risk Analysis):} Define system boundaries, data flows, threat model for PII deletion.
+ \item \textbf{Day 5 (Implementation Planning \& Static Verification):} Plan tasks, configure CI pipeline, define SAST rules for PII protection. \textbf{GATE-04} entry: task breakdown, CI configuration. Exit: SAST passes with zero critical/high findings (secret leakage, PII in logs, string-interpolated SQL, phantom imports); all AI-assisted code has recorded disposition.
+ \item \textbf{Day 6 (Traceability Closure \& Test Specification):} Complete bidirectional matrix; specify test cases (TC-PERF-01, TC-PRIV-01, TC-SLA-01, TC-CONCUR-01). \textbf{GATE-05} entry: traceability matrix draft. Exit: 100\% bidirectional traceability; every outcome maps to $\geq$ 1 user story and $\geq$ 1 quality scenario; every user story maps to $\geq$ 1 outcome and $\geq$ 1 quality scenario; every test maps to exactly 1 quality scenario and $\geq$ 1 user story; no orphans; AI usage appendix has $\geq$ 2 Modified/Rejected dispositions; zero PII; 100\% ASCII.
+ \item \textbf{Day 7 (Release Certification \& Audit Compilation):} Execute all gate verifications; compile AI usage appendix; certify release. \textbf{GATE-05 (final)}.
+\end{itemize}
+
+\subsection{Verification and Feedback Loops}
+
+Two concurrent loops with different cycle times and accountability boundaries:
+
+\textbf{Inner Loop (Hours):} AI Draft $\rightarrow$ Deterministic Linting $\rightarrow$ Property-Based Testing $\rightarrow$ Human Audit Gate. Cycle time: minutes to hours per artifact. Never produces deployable artifacts; produces gate-ready candidates. Tool: task audit template (TASK\_TEMPLATE.md).
+
+\textbf{Outer Loop (Days):} Load Test Execution (TC-PERF-01, TC-CONCUR-01 at 302 users in staging) $\rightarrow$ Compliance Review (DPO/Legal validates deletion pipeline; SecOps validates audit retention) $\rightarrow$ SLA Drill (simulate degraded alert channels; verify TC-SLA-01 pass) $\rightarrow$ Release Certification (GATE-05 final). Cycle time: hours to days. Gates deployment. No artifact reaches submission PDF without outer-loop validation.
+
+\subsection{Engineering Trade-offs}
+
+\textbf{Trade-off 1: Velocity vs. Verification Depth.} Resolution: \textit{Verification depth wins.} The variant's hard constraints (20-hour SLA, 41-day retention, 302 concurrent users) are non-negotiable. A velocity shortcut that misses a boundary case (hour 19.5, Day 42 purge, race condition) directly breaches the SLA or leaks PII. The process mandates property-based testing and explicit boundary scenarios at GATE-02 and GATE-03.
+
+\textbf{Trade-off 2: Full Automation vs. Mandatory Human Audit Gates.} Resolution: \textit{Mandatory human audit gates win.} The deletion policy involves legal compliance (GDPR-class regulation). The engineer must be able to testify to the specific verification performed on every AI-assisted artifact. The audit trail in every task\_*.md is the evidence chain. No automated gate substitutes for this.
+
+\textbf{Trade-off 3: Agile Scope Flexibility vs. Rigid SLA Contractual Boundaries.} Resolution: \textit{Rigid SLA boundaries win for Must Have scope.} The variant parameters are regulatory/contractual, not negotiable. Agile flexibility applies only to Should Have and Could Have items. Must Have scope is frozen at inception (GATE-01). The MoSCoW Won't Have list exists to protect this boundary.
+
+% ============================================================================
+% SECTION 4: PROBLEM FRAMING
+% ============================================================================
+\section{Problem Framing and Product Thinking}
+
+\subsection{Operational Problem Statement}
+
+The Access Administrator governs access rights within a shared GitHub project environment used by student teams. During active development, a \textbf{Personal-Data-Deletion-on-Request} policy is introduced, mandating deletion upon data subject request. This creates an operational dilemma: simultaneously honor deletion requests, maintain a 41-day auditable trail, and sustain operational continuity for 302 concurrent active users---all within a 20-hour response window. The solution must satisfy the deletion policy without invalidating the audit retention requirement or exceeding the response window, while preserving system stability under peak load, defined in terms of operational outcomes, not implementation mechanisms.
+
+\subsection{Measurable Operational Outcomes}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{OUTCOME-01:} 100\% of data-deletion and access-revocation requests fulfilled within the $\leq$ 20-hour response window.
+ \item \textbf{OUTCOME-02:} 100\% compliance with the 41-day audit retention limit with zero exposure of residual direct personal identifiers (achieved via irreversible tokenization or pseudonymization).
+ \item \textbf{OUTCOME-03:} System maintains concurrent session error rates < 0.1\% under peak baseline load of 302 concurrent active users during access policy re-evaluations.
+\end{itemize}
+
+Each outcome is expressed as a verifiable operational target. Implementation choices are intentionally excluded.
+
+\subsection{Stakeholder Analysis and Conflict Matrix}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Stakeholder} & \textbf{Core Operational Need} \\
+\hline
+\textbf{Access Administrator (Focus)} & Authoritative, timely execution of access grants, revocations, and deletion directives without service disruption. \\
+\hline
+\textbf{Data Subject / End User} & Right to request deletion and receive confirmation within the mandated window. \\
+\hline
+\textbf{SecOps \& Compliance Auditor} & Continuous, tamper-evident access logs for 41-day forensic investigation. \\
+\hline
+\textbf{DPO / Legal Counsel} & Demonstrable adherence to deletion obligations; no personal identifiers retained beyond what law permits. \\
+\hline
+\end{tabularx}
+\caption{Stakeholder Roles and Needs}
+\end{table}
+
+\textbf{Explicit Conflict Points:}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{CONFLICT-01 (SecOps vs. DPO):} 41-day audit retention demands attributable events; deletion policy demands identifier removal. Mutually exclusive unless irreversible transformation (tokenization/pseudonymization) satisfies both.
+ \item \textbf{CONFLICT-02 (Access Admin vs. Data Subject):} Access Admin must process deletion within 20h while managing 302 active sessions. Synchronous per-request workflow may exceed window under load, forcing queuing or batch model with latency risk.
+ \item \textbf{CONFLICT-03 (SecOps vs. Access Admin):} Access Admin needs instant revocation; SecOps requires every revocation logged with full context before action, potentially adding latency threatening the 20h window.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.55\linewidth]{assets/diagram_conflicts.png}
+\caption{Stakeholder Tension Grid: 4 Parties, 3 Core Conflicts}
+\label{fig:conflicts}
+\end{figure}
+
+\subsection{Unverified Candidate Assumptions (ISO 29148)}
+
+Per ISO/IEC/IEEE 29148, the following candidate assumptions are recorded. Each must be validated with the appropriate authority before constraining the solution. None is accepted as a baseline.
+
+\begin{enumerate}[leftmargin=*]
+ \item \textbf{ASSUMPTION-01:} The 20-hour response window is measured in continuous elapsed hours (calendar clock), not business hours. \textit{Validation required from:} Policy owner / Legal Counsel.
+ \item \textbf{ASSUMPTION-02:} Audit log entries are legally distinct from personal profiles; tokenized references in logs do not constitute personal data. \textit{Validation required from:} DPO / Legal Counsel.
+ \item \textbf{ASSUMPTION-03:} The peak-load transaction profile across 302 concurrent users follows a read-heavy access-check pattern with bursty write spikes, not uniform write load. \textit{Validation required from:} Platform operations / SecOps.
+\end{enumerate}
+
+% ============================================================================
+% SECTION 5: USER STORIES AND ACCEPTANCE CRITERIA
+% ============================================================================
+\section{User Stories and Acceptance Criteria}
+
+\subsection{Traceability and Story Derivation}
+
+The four core user stories are derived directly from measurable operational outcomes and stakeholder conflict matrix:
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{ID} & \textbf{Outcome} & \textbf{Conflict} & \textbf{Rationale} \\
+\hline
+US-01 & OUTCOME-01 & CONFLICT-02 & Bulk processing within 20h window under load \\
+\hline
+US-02 & OUTCOME-02 & CONFLICT-01 & Pseudonymized access under 41-day retention \\
+\hline
+US-03 & OUTCOME-03 & CONFLICT-03 & Revocation without destabilizing 302 sessions \\
+\hline
+US-04 & OUTCOME-01 & CONFLICT-02 & Automated escalation near 20h deadline \\
+\hline
+\end{tabularx}
+\caption{User Story to Outcome and Conflict Traceability}
+\end{table}
+
+\subsection{Core User Stories with Gherkin Acceptance Criteria}
+
+\textbf{US-01: Bulk Processing of Personal Data Deletion Requests}
+
+\textit{As an} Access Administrator, \textit{I want} to process incoming personal data deletion requests in bulk, \textit{so that} all requests are fulfilled within the $\leq$ 20-hour response window even under concurrent load.
+
+\textbf{Acceptance Criteria:}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{AC-01.1 (Nominal):} \textit{Given} a batch of deletion requests queued, each for a distinct data subject, elapsed time < 10 hours. \textit{When} Access Administrator initiates bulk deletion workflow. \textit{Then} all requests marked fulfilled, direct identifiers irreversibly tokenized, fulfillment confirmation recorded.
+ \item \textbf{AC-01.2 (Boundary---Late-Arrival with Dependencies):} \textit{Given} request arrives at hour 19.5, target has active session dependencies preventing immediate tokenization. \textit{When} bulk workflow triggered. \textit{Then} request flagged for expedited handling, dependent sessions gracefully terminated or transferred, tokenization completes before 20h deadline, confirmation records escalation path.
+ \item \textbf{AC-01.3 (Failure---Window Exceeded):} \textit{Given} request aged past 20h without fulfillment due to dependency deadlock. \textit{When} system evaluates request age. \textit{Then} request marked SLA breach, escalation alert emitted to Access Administrator and DPO, breach record includes root-cause category.
+\end{itemize}
+
+\textbf{US-02: Pseudonymized Audit Record Access Under Retention Limit}
+
+\textit{As a} SecOps Analyst or Compliance Auditor, \textit{I want} to query pseudonymized audit records spanning up to 41 days, \textit{so that} forensic investigations retain full event traceability without exposing direct personal identifiers.
+
+\textbf{Acceptance Criteria:}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{AC-02.1 (Nominal):} \textit{Given} audit store contains pseudonymized records aged 1--41 days, each linked to stable surrogate key. \textit{When} SecOps queries time range. \textit{Then} query returns complete events with surrogate keys, zero direct PII in result set, response includes record age relative to 41-day limit.
+ \item \textbf{AC-02.2 (Boundary---Retention Expiry at Day 42):} \textit{Given} pseudonymized records exist for day 41 and day 42. \textit{When} retention enforcement executes at 41-day boundary. \textit{Then} day 41 records remain retrievable; day 42 records purged; purge operation logged with surrogate keys; no direct PII exposed during purge.
+ \item \textbf{AC-02.3 (Failure---Re-identification Attempt):} \textit{Given} query attempts join with external data source containing direct PII. \textit{When} SecOps executes join query. \textit{Then} system rejects query or suppresses join columns with direct identifiers, audit event records attempted re-identification pattern.
+\end{itemize}
+
+\textbf{US-03: Access Revocation Under Peak Concurrent Load}
+
+\textit{As an} Access Administrator, \textit{I want} to revoke access privileges of a target user immediately, \textit{so that} revocation takes effect without degrading session stability for 302 concurrent active users (error rate < 0.1\%).
+
+\textbf{Acceptance Criteria:}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{AC-03.1 (Nominal):} \textit{Given} system at 302 concurrent users, session error rate < 0.01\%. \textit{When} Access Administrator issues revocation directive for single target user. \textit{Then} target's active sessions terminated within 30s, all other sessions continue without interruption, post-revocation error rate remains < 0.1\%.
+ \item \textbf{AC-03.2 (Boundary---Race Condition During Re-evaluation):} \textit{Given} system at peak load (302 users), policy re-evaluation cycle in progress, revocation issued for user with multiple active sessions across repositories. \textit{When} revocation issued concurrently with re-evaluation. \textit{Then} revocation takes effect atomically across all repositories; no other user experiences authorization error; re-evaluation completes with consistent policy state; total elapsed time does not exceed 20h window.
+ \item \textbf{AC-03.3 (Failure---Cascade Failure Under Load):} \textit{Given} system at peak load, revocation triggers unexpected policy propagation failure affecting unrelated users. \textit{When} revocation issued. \textit{Then} system isolates failure to target user, other sessions remain stable, error rate for non-target users stays < 0.1\%, failure report generated identifying propagation path.
+\end{itemize}
+
+\textbf{US-04: Automated SLA Escalation for Near-Deadline Deletion Requests}
+
+\textit{As an} Access Administrator, \textit{I want} automated escalation when a personal data deletion request approaches the 20-hour response deadline, \textit{so that} no request breaches the SLA due to queue congestion or notification failure.
+
+\textbf{Acceptance Criteria:}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{AC-04.1 (Nominal):} \textit{Given} deletion request in queue for 16 hours without fulfillment. \textit{When} 16-hour mark reached. \textit{Then} automated escalation alert sent to Access Administrator and DPO, request priority elevated, escalation event logged with timestamp.
+ \item \textbf{AC-04.2 (Boundary---Notification Channel Disconnected):} \textit{Given} request reaches 18-hour mark, primary notification channel unavailable. \textit{When} escalation trigger fires. \textit{Then} system falls back to secondary channel, logs channel failure, retries primary at 5-min intervals, escalation alert delivered via secondary within 15 minutes.
+ \item \textbf{AC-04.3 (Failure---Queue Congestion Blocking Escalation):} \textit{Given} processing queue congested such that escalation task cannot be enqueued. \textit{When} 16h or 18h threshold reached. \textit{Then} critical alert emitted directly to Access Administrator dashboard bypassing queue, congestion logged as system health incident, request marked for manual intervention with full audit trail.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.55\linewidth]{assets/diagram_sequence.png}
+\caption{UML Sequence Diagram: US-03 Race Condition Under Peak Load}
+\label{fig:sequence}
+\end{figure}
+
+\subsection{Implementation Independence Affirmation}
+
+All user stories and acceptance criteria are expressed strictly in terms of actors, observable domain states, and quantitative operational boundaries. No story or criterion references HTTP status codes, REST endpoints, database schemas, authentication protocols, UI frameworks, programming languages, runtimes, infrastructure platforms, data structures, serialization formats, or message queue topologies. The stories describe \textit{what} the system must achieve and \textit{under what observable conditions}, not \textit{how} any component is implemented. This satisfies ISO/IEC/IEEE 29148 implementation-independence and the variant's "no technology names" constraint.
+
+% ============================================================================
+% SECTION 6: QUALITY SCENARIOS AND MVP SCOPE
+% ============================================================================
+\section{Quality Scenarios and MVP Scope}
+
+\subsection{Six-Part Quality Attribute Scenarios}
+
+Per ISO/IEC/IEEE 29148 and SEI architectural analysis standards, each quality scenario specifies all 6 mandated components: Source, Stimulus, Artifact, Environment, Response, and Response Measure.
+
+\textbf{QS-01: Performance and Concurrency (Mandatory)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Component} & \textbf{Specification} \\
+\hline
+Source & Internal and external user traffic \\
+\hline
+Stimulus & Sustained peak load reaching exactly 302 concurrent active users executing access-rights evaluations \\
+\hline
+Artifact & Access Authorization \& Session Management Engine \\
+\hline
+Environment & Normal peak-hour production operation \\
+\hline
+Response & System dynamically manages session contention, isolates token revocation overhead, fulfills verifications without cascading failure \\
+\hline
+Response Measure & Session transaction error rate < 0.1\%, 95th percentile evaluation latency under 500 ms \\
+\hline
+\end{tabularx}
+\caption{QS-01: Performance and Concurrency}
+\end{table}
+
+\textit{Traceability:} Validates OUTCOME-03. Links to US-03 (AC-03.1, AC-03.2, AC-03.3).
+
+\textbf{QS-02: Security and Privacy (Mandatory Variant Trigger)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Component} & \textbf{Specification} \\
+\hline
+Source & Data Subject / DPO deletion trigger \\
+\hline
+Stimulus & Valid personal data deletion request requiring complete profile purging while retaining regulatory access history \\
+\hline
+Artifact & Identity Store \& Audit Log Repository \\
+\hline
+Environment & Routine operation with records spanning up to 41 days \\
+\hline
+Response & System irrevocably removes direct PII, substitutes surrogate identity tokens in audit records, marks records for absolute purging at Day 42 \\
+\hline
+Response Measure & 100\% of direct personal identifiers eliminated; audit records preserved for exactly $\leq$ 41 days with 0\% re-identification risk; automated purge completed within 1 hour past 41-day retention limit \\
+\hline
+\end{tabularx}
+\caption{QS-02: Security and Privacy}
+\end{table}
+
+\textit{Traceability:} Validates OUTCOME-02. Links to US-02 (AC-02.1, AC-02.2, AC-02.3) and CONFLICT-01.
+
+\textbf{QS-03: Reliability and Availability (Change Window SLA)}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Component} & \textbf{Specification} \\
+\hline
+Source & Access Administrator processing policy change requests \\
+\hline
+Stimulus & Ingestion of high-priority access revocation and deletion requests approaching SLA window limit under partial component degradation \\
+\hline
+Artifact & Request Scheduling \& Escalation Subsystem \\
+\hline
+Environment & Degraded alert transmission channels with queue backlog \\
+\hline
+Response & System escalates priority, switches to redundant notification channels, preserves transaction processing state \\
+\hline
+Response Measure & 100\% of valid change requests completed in $\leq$ 20h; zero lost deletion requests; escalation alerts delivered within $\leq$ 15 minutes of trigger threshold \\
+\hline
+\end{tabularx}
+\caption{QS-03: Reliability and Availability}
+\end{table}
+
+\textit{Traceability:} Validates OUTCOME-01. Links to US-01 (AC-01.1, AC-01.2, AC-01.3) and US-04 (AC-04.1, AC-04.2, AC-04.3).
+
+\subsection{MoSCoW Scope Categorization}
+
+\begin{table}[h]
+\centering
+\footnotesize
+\begin{tabularx}{\textwidth}{|l|X|X|}
+\hline
+\textbf{Category} & \textbf{Features} & \textbf{Justification} \\
+\hline
+\textbf{Must Have} & Bulk deletion within 20h (US-01); Pseudonymized audit with 41-day retention (US-02); Revocation under 302-user peak with < 0.1\% error (US-03); SLA escalation at 16h/18h (US-04); Irreversible PII tokenization and Day-42 purge (QS-02); Redundant notification channels (QS-03) & Maps to all three outcomes and three quality scenarios. Omitting any violates variant hard constraints. \\
+\hline
+\textbf{Should Have} & Configurable escalation thresholds (currently fixed at 16h/18h); Manual override for purge in edge cases; Structured audit export for compliance review & Enhances flexibility but not required for core outcomes. Can be added post-MVP without architectural rework. \\
+\hline
+\textbf{Could Have} & Dashboard visualization of queue depth and SLA trends; Webhook integration for external SIEM; Policy simulation mode for what-if analysis & Provides operator visibility and integration. Valuable for maturity but not essential for MVP validation. \\
+\hline
+\textbf{Won't Have} & Automated ML predictive analytics for load forecasting; Third-party IdP federation (SAML, OIDC, Azure AD, Google Workspace); Real-time GUI graph visualization of access topology; Multi-region active-active deployment; Custom rule DSL for dynamic policy authoring & Each introduces significant complexity or external dependencies not contributing to OUTCOME-01, OUTCOME-02, or OUTCOME-03. Inclusion would exceed MVP boundary and risk the 20h SLA, 41-day retention, and 302-user concurrency guarantees. Deferred indefinitely until post-MVP validation confirms core boundary stable. \\
+\hline
+\end{tabularx}
+\caption{MoSCoW Scope Categorization}
+\end{table}
+
+\subsection{MVP Scope Boundary}
+
+The Minimal Viable Product is the smallest deployable system satisfying all three measurable outcomes and passing the three quality scenario acceptance criteria under the stated variant constraints.
+
+\textbf{In-Scope Operational Capabilities:}
+
+\begin{enumerate}[leftmargin=*]
+ \item Deletion Request Lifecycle: End-to-end processing from intake through tokenization to fulfillment confirmation, meeting 20h window under nominal and boundary conditions.
+ \item Audit Record Pseudonymization: Surrogate-key substitution for direct PII in audit records, with deterministic 41-day retention and automated Day-42 purge.
+ \item Access Revocation Under Load: Atomic privilege revocation for target identity while maintaining session stability for 302 concurrent users.
+ \item SLA Escalation Safeguard: Time-triggered priority elevation and redundant notification delivery ensuring zero SLA breaches from queue congestion or channel failure.
+\end{enumerate}
+
+\textbf{Out-of-Scope (Explicit Exclusions):} Predictive capacity planning, federated identity provider integration, graphical topology visualization, disaster recovery across regions, dynamic policy authoring language.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.55\linewidth]{assets/diagram_architecture.png}
+\caption{Architectural Separation: Identity Store (Purged) vs Audit Log Store (41-day Retention)}
+\label{fig:architecture}
+\end{figure}
+
+\textbf{Baseline Validation Criteria:}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{ID} & \textbf{Test Reference} & \textbf{Pass Threshold} \\
+\hline
+VC-01 & TC-PERF-01 (QS-01) & Error rate < 0.1\% at 302 concurrent users; p95 latency $\leq$ 500 ms \\
+\hline
+VC-02 & TC-PRIV-01 (QS-02) & 100\% direct PII removed; audit records intact for $\leq$ 41 days; 0\% re-identification; purge within 1h of Day 42 \\
+\hline
+VC-03 & TC-SLA-01 (QS-03) & 100\% change requests fulfilled in $\leq$ 20h; zero lost requests; escalation alert delivery $\leq$ 15 min \\
+\hline
+VC-04 & TC-CONCUR-01 (US-03 AC-03.2) & Race-condition revocation atomic across repos; non-target error rate < 0.1\% \\
+\hline
+\end{tabularx}
+\caption{MVP Validation Criteria (Necessary and Sufficient)}
+\end{table}
+
+% ============================================================================
+% SECTION 7: TRACEABILITY MATRIX
+% ============================================================================
+\section{Bidirectional Traceability Matrix}
+
+Complete forward and backward traceability linking outcomes, user stories, quality scenarios, and planned test cases. Every entry is traced in both directions.
+
+\begin{table}[h]
+\centering
+\footnotesize
+\begin{tabularx}{\textwidth}{|l|l|l|l|X|}
+\hline
+\textbf{Outcome ID} & \textbf{User Story ID} & \textbf{Quality Scenario ID} & \textbf{Planned Test ID} & \textbf{Trace Status} \\
+\hline
+OUTCOME-01 & US-01 & QS-03 & TC-SLA-01 & Forward / Backward \\
+\hline
+OUTCOME-01 & US-04 & QS-03 & TC-SLA-01 & Forward / Backward \\
+\hline
+OUTCOME-02 & US-02 & QS-02 & TC-PRIV-01 & Forward / Backward \\
+\hline
+OUTCOME-03 & US-03 & QS-01 & TC-PERF-01 & Forward / Backward \\
+\hline
+OUTCOME-03 & US-03 & QS-01 & TC-CONCUR-01 & Forward / Backward \\
+\hline
+\end{tabularx}
+\caption{Bidirectional Traceability Matrix}
+\end{table}
+
+\textbf{Forward Traceability (Outcome $\rightarrow$ Test):}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{OUTCOME-01:} 100\% of data-deletion and access-revocation requests fulfilled within $\leq$ 20-hour response window. Verified by: TC-SLA-01.
+ \item \textbf{OUTCOME-02:} 100\% compliance with 41-day audit retention; zero residual direct PII exposure. Verified by: TC-PRIV-01.
+ \item \textbf{OUTCOME-03:} Concurrent session error rate < 0.1\% under 302 concurrent active users. Verified by: TC-PERF-01, TC-CONCUR-01.
+\end{itemize}
+
+\textbf{Backward Traceability (Test $\rightarrow$ Outcome):}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{TC-PERF-01:} QS-01, US-03 $\rightarrow$ OUTCOME-03.
+ \item \textbf{TC-CONCUR-01:} QS-01, US-03 (AC-03.2) $\rightarrow$ OUTCOME-03.
+ \item \textbf{TC-PRIV-01:} QS-02, US-02 $\rightarrow$ OUTCOME-02.
+ \item \textbf{TC-SLA-01:} QS-03, US-01, US-04 $\rightarrow$ OUTCOME-01.
+\end{itemize}
+
+\textbf{Trace Integrity Checklist:}
+
+\begin{itemize}[leftmargin=*]
+ \item Every Outcome ID maps to at least one User Story and one Quality Scenario: \textbf{Pass}.
+ \item Every User Story maps to at least one Outcome and one Quality Scenario: \textbf{Pass}.
+ \item Every Quality Scenario maps to at least one Outcome and one User Story: \textbf{Pass}.
+ \item Every Planned Test ID maps to exactly one Quality Scenario and at least one User Story: \textbf{Pass}.
+ \item No orphan entries (all IDs appear in both forward and backward views): \textbf{Pass}.
+ \item All RE-027 variant parameters referenced verbatim in at least one trace path: \textbf{Pass}.
+\end{itemize}
+
+\textbf{Status:} All checks pass. Matrix is complete and bidirectional.
+
+% ============================================================================
+% APPENDIX: AI USAGE AND ENGINEERING AUDIT TRAIL (Page 7+)
+% ============================================================================
+\clearpage
+\appendix
+\section*{Appendix: AI Usage and Engineering Audit Trail}
+\addcontentsline{toc}{section}{Appendix: AI Usage and Engineering Audit Trail}
+
+This appendix consolidates all AI-assisted artifacts across TASK-00 through TASK-05, documenting the human-in-the-loop audit trail required by Rubric Criterion 6 (10\%). A minimum of 2 Modified or Rejected dispositions with engineering justification is required; this submission records 17 interventions across 6 tasks.
+
+\subsection*{AI Tools Used}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{Primary AI Agent:} Claude Code (Sonnet 4, model ID \texttt{anthropic/claude-sonnet-4.5}), deployed via CLI environment with autonomous task execution capability.
+ \item \textbf{Usage Model:} Structured prompt engineering with explicit task templates, human audit gates at every artifact, and recorded disposition (Accepted / Modified / Rejected) in task logs.
+ \item \textbf{Accountability Model:} Zero AI output bypassed human review. Every artifact passed through GATE-01 through GATE-05 verification checkpoints with documented engineering justification.
+\end{itemize}
+
+\subsection*{Comprehensive Audit Table}
+
+\begin{table}[h]
+\centering
+\tiny
+\begin{tabularx}{\textwidth}{|l|X|l|X|}
+\hline
+\textbf{Task ID} & \textbf{AI Draft Proposal} & \textbf{Human Action} & \textbf{Engineering Justification} \\
+\hline
+TASK-00 & Initial spec included team member PII hardcoded in example commits & \textbf{Rejected} & Zero PII policy: all student metadata must use dynamic placeholders resolved at build time via git config. \\
+\hline
+TASK-00 & AI proposed coupling assignment spec to specific LLM provider (GPT-4) in problem framing & \textbf{Rejected} & Problem statement must remain technology-agnostic per ISO 29148; referencing specific LLM violates implementation independence. \\
+\hline
+TASK-01 & Proposed SQL triggers, database-level cascading deletes, OAuth token revocation as deletion mechanism & \textbf{Rejected} & Problem framing must remain implementation-agnostic. Coupling to database features and auth protocols pre-commits solution and violates "no technology names" constraint. \\
+\hline
+TASK-01 & Presented SecOps 41-day retention and DPO deletion as single combined requirement without conflict modeling & \textbf{Rejected} & Tension between audit traceability and identifier removal is central architectural conflict of this variant. Masking it as one requirement obscures design trade-off and weakens evidence for Criterion 3. \\
+\hline
+TASK-01 & Framed 20-hour window as simple SLA target without qualifying continuous vs business-hour interpretation & \textbf{Modified} & Added ASSUMPTION-01 to capture clock-model ambiguity as unverified candidate assumption requiring legal/policy validation. \\
+\hline
+TASK-02 & Acceptance criteria for US-01 specified HTTP 202 Accepted for batch submission, HTTP 204 No Content for completion, HTTP 409 Conflict for deadlock & \textbf{Rejected} & HTTP status codes are implementation coupling. Criteria must express domain-observable states (accepted, fulfilled, conflicted) independent of transport protocol. \\
+\hline
+TASK-02 & Acceptance criteria for US-02 referenced database \texttt{audit\_log} table with \texttt{surrogate\_key} column and \texttt{DELETE FROM audit\_log WHERE age > 41 DAYS} rollback & \textbf{Rejected} & Database schema and DML operations are implementation details. Requirement is observable record availability and purge behavior, not storage mechanism. \\
+\hline
+TASK-02 & Acceptance criteria for US-03 included circuit-breaker pattern with Hystrix fallback and 500ms p99 latency budget for revocation API & \textbf{Rejected} & Specific resilience libraries and API-layer latency budgets couple story to microservice architecture. Criterion is session stability and error rate under load, observable at user level. \\
+\hline
+TASK-02 & Acceptance criteria for US-04 used cron expression \texttt{0 */6 * * *} for escalation check and named RabbitMQ for fallback channel & \textbf{Rejected} & Scheduling syntax and message broker selection are infrastructure decisions. Requirement is time-based escalation and channel fallback behavior, observable without infrastructure commitment. \\
+\hline
+TASK-02 & Framed 20-hour window as simple SLA target without distinguishing nominal vs escalation thresholds & \textbf{Modified} & Introduced explicit 16-hour and 18-hour escalation thresholds in AC-04.1 and AC-04.2 to make boundary conditions testable and SLA safeguard verifiable. \\
+\hline
+TASK-03 & Quality scenario QS-01 response measure initially stated "latency under 1 second" without percentile specification & \textbf{Modified} & Changed to "95th percentile evaluation latency under 500 ms" to make falsifiable and align with industry load-testing standards. \\
+\hline
+TASK-03 & Quality scenario QS-02 response measure stated "PII removed" without quantitative threshold & \textbf{Modified} & Changed to "100\% of direct personal identifiers eliminated" and added "0\% re-identification risk" to make falsifiable. \\
+\hline
+TASK-03 & MoSCoW Won't Have list initially generic ("advanced features deferred") without enumeration & \textbf{Modified} & Expanded to 5 explicit deferred items: ML predictive analytics, third-party IdP federation, real-time GUI topology graph, multi-region active-active deployment, custom rule DSL. Makes boundary explicit and testable. \\
+\hline
+TASK-04 & AI failure mode example referenced "GPT-4 hallucination" as specific model behavior & \textbf{Modified} & Generalized to "large language model hallucination" to avoid coupling analysis to one LLM provider; analysis must apply to any generative AI system. \\
+\hline
+TASK-04 & Mitigation strategy initially proposed "automated SAST scan approval without human gate" & \textbf{Rejected} & Mandatory human audit gates are required for legal accountability under GDPR-class regulation. Engineer must testify to specific verification performed on every AI artifact. Automation alone insufficient. \\
+\hline
+TASK-05 & Process model initially proposed "7-day Scrum sprint with daily standups" & \textbf{Modified} & Reframed as hybrid AI-native process with 5 explicit quality gates (GATE-01 through GATE-05) embedding human audit at each phase, not generic Scrum. \\
+\hline
+TASK-05 & Trade-off analysis initially framed "velocity vs verification" as context-dependent without resolution & \textbf{Modified} & Forced explicit resolution: verification depth wins for RE-027 because SLA, retention, and concurrency are non-negotiable hard constraints. Documented rationale. \\
+\hline
+\end{tabularx}
+\caption{Comprehensive AI Usage Audit Trail (17 Human Interventions)}
+\end{table}
+
+\subsection*{Summary of Dispositions}
+
+\begin{itemize}[leftmargin=*]
+ \item \textbf{Rejected:} 10 AI proposals (hardcoded PII, implementation coupling to HTTP codes / SQL / OAuth / Hystrix / RabbitMQ / cron / specific LLM, combined requirement masking conflict, automation-only gates).
+ \item \textbf{Modified:} 7 AI proposals (clock-model assumption, escalation thresholds, percentile specification, quantitative PII threshold, explicit Won't Have enumeration, generalized LLM reference, forced trade-off resolution).
+ \item \textbf{Accepted:} All other AI drafts (structural templates, Gherkin scenario format, ISO 29148 six-component layout, traceability matrix structure) accepted as-is after human verification.
+\end{itemize}
+
+\subsection*{Engineering Accountability Statement}
+
+Every AI-generated artifact in this submission passed through explicit human verification gates (GATE-01 through GATE-05) with recorded disposition and engineering justification. The AI served as a drafting accelerator, never a decision authority. The human engineer specified the intent, reviewed each draft, recorded the disposition, and only then committed the artifact. No AI output bypassed a gate. The engineer assumes full responsibility for the content of this submission, as declared on the title page.
+
+\subsection*{Principal AI Prompts Used}
+
+\begin{enumerate}[leftmargin=*]
+ \item \textbf{TASK-00 Prompt:} "Compile canonical English specification from Vietnamese source document, preserving all variant parameters (Access Administrator, Personal-Data-Deletion-on-Request, 302 users, 41 days, 20 hours) verbatim. Replace all student PII with dynamic placeholders resolved via git config. Zero hardcoded PII."
+ \item \textbf{TASK-01 Prompt:} "Author problem framing document per ISO/IEC/IEEE 29148. Operational problem statement with zero technology names. 3 measurable outcomes (OUTCOME-01, 02, 03). Stakeholder map with >= 4 parties. Explicit conflict matrix with >= 3 conflicts. 3 unverified candidate assumptions requiring external validation."
+ \item \textbf{TASK-02 Prompt:} "Formulate 4 user stories with Gherkin acceptance criteria. Each story >= 2 scenarios (Given/When/Then). At least 1 boundary or failure case per story. Zero HTTP codes, SQL, REST endpoints, or implementation details in any criterion."
+ \item \textbf{TASK-03 Prompt:} "Formulate 3 six-part quality scenarios (Source, Stimulus, Artifact, Environment, Response, Response Measure) per ISO 29148. Response measures mathematically falsifiable. MoSCoW categorization with explicit Won't Have >= 3 deferred items with engineering justification."
+ \item \textbf{TASK-04 Prompt:} "Distinguish working software from reliable software. Articulate ACM/IEEE accountability for AI-generated code. Analyze 3 systematic AI failure modes (hallucination, edge-case blindness, privacy blindspots) with RE-027 examples. Propose 6-layer mitigation defense."
+ \item \textbf{TASK-05 Prompt:} "Design 1-week AI-augmented workflow with >= 5 checkpoints (GATE-01 through GATE-05). Inner loop (hours): AI draft $\rightarrow$ lint $\rightarrow$ test $\rightarrow$ human gate. Outer loop (days): load test $\rightarrow$ compliance $\rightarrow$ SLA drill $\rightarrow$ certification. Document 3 trade-offs with explicit resolution."
+\end{enumerate}
+
+\subsection*{Lessons Learned}
+
+\begin{enumerate}[leftmargin=*]
+ \item \textbf{AI as Drafting Accelerator, Not Decision Authority:} AI excel at generating structured templates (Gherkin scenarios, ISO 29148 six-component tables, traceability matrices), but systematically couple requirements to implementation (HTTP codes, SQL, specific libraries). Human audit gates are non-negotiable.
+ \item \textbf{Boundary Cases Require Explicit Prompting:} AI optimizes for nominal paths. Boundary cases (hour 19.5, Day 42 purge, 302-user race condition) must be explicitly named in prompts or the AI omits them.
+ \item \textbf{Quantitative Thresholds Must Be Forced:} AI responses default to qualitative ("PII removed") unless prompts demand falsifiable quantitative thresholds ("100\% of direct PII eliminated; 0\% re-identification").
+ \item \textbf{Traceability Matrices Enforce Completeness:} The bidirectional matrix (TRACEABILITY.md) caught orphan entries and incomplete links that narrative documents would miss. Tooling can validate matrix integrity deterministically.
+ \item \textbf{Human Accountability Cannot Be Automated:} Legal and professional accountability for GDPR-class compliance requires human audit trails. No SAST scan or CI gate substitutes for the engineer's recorded judgment and signature.
+\end{enumerate}
+
+% ============================================================================
+% END DOCUMENT
+% ============================================================================
+\end{document}

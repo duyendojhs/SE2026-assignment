@@ -1,0 +1,100 @@
+<svg width="1200" height="700" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="700" fill="white"/>
+
+  <!-- Title -->
+  <text x="600" y="50" font-size="28" font-weight="bold" text-anchor="middle" fill="#1f2937">
+    Architectural Separation: Identity Store vs Audit Log Store (Variant RE-027)
+  </text>
+
+  <!-- Identity Store (LEFT) -->
+  <rect x="100" y="120" width="400" height="300" rx="15" fill="#fee2e2" stroke="#dc2626" stroke-width="4"/>
+  <text x="300" y="160" font-size="20" font-weight="bold" text-anchor="middle" fill="#991b1b">
+    Primary Identity Store
+  </text>
+  <text x="300" y="190" font-size="16" text-anchor="middle" fill="#7f1d1d">
+    (Purged under Personal-Data-
+  </text>
+  <text x="300" y="215" font-size="16" text-anchor="middle" fill="#7f1d1d">
+    Deletion-on-Request)
+  </text>
+
+  <!-- Identity Store contents -->
+  <g>
+    <circle cx="140" cy="260" r="4" fill="#dc2626"/>
+    <text x="150" y="265" font-size="14">Direct Personal Identifiers (PII)</text>
+
+    <circle cx="140" cy="295" r="4" fill="#dc2626"/>
+    <text x="150" y="300" font-size="14">User profiles (name, email, ID)</text>
+
+    <circle cx="140" cy="330" r="4" fill="#dc2626"/>
+    <text x="150" y="335" font-size="14">Active session tokens</text>
+
+    <circle cx="140" cy="365" r="4" fill="#dc2626"/>
+    <text x="150" y="370" font-size="14">Access credentials</text>
+  </g>
+
+  <!-- Deletion arrow -->
+  <line x1="300" y1="430" x2="300" y2="480" stroke="#dc2626" stroke-width="4" marker-end="url(#arrowDelete)"/>
+  <text x="300" y="510" font-size="16" font-weight="bold" text-anchor="middle" fill="#dc2626">DELETION</text>
+  <text x="300" y="535" font-size="13" text-anchor="middle" fill="#7f1d1d">Request triggers</text>
+  <text x="300" y="555" font-size="13" text-anchor="middle" fill="#7f1d1d">irreversible purge</text>
+
+  <!-- Tokenization Flow (CENTER) -->
+  <line x1="520" y1="270" x2="660" y2="270" stroke="#059669" stroke-width="4" stroke-dasharray="10,5" marker-end="url(#arrowToken)"/>
+  <text x="590" y="245" font-size="16" font-weight="bold" text-anchor="middle" fill="#059669">Irreversible</text>
+  <text x="590" y="265" font-size="16" font-weight="bold" text-anchor="middle" fill="#059669">Tokenization</text>
+  <text x="590" y="300" font-size="13" text-anchor="middle" fill="#047857">(Surrogate Keys)</text>
+
+  <!-- Audit Log Store (RIGHT) -->
+  <rect x="680" y="120" width="420" height="300" rx="15" fill="#dbeafe" stroke="#2563eb" stroke-width="4"/>
+  <text x="890" y="160" font-size="20" font-weight="bold" text-anchor="middle" fill="#1e40af">
+    Audit Log Store
+  </text>
+  <text x="890" y="190" font-size="16" text-anchor="middle" fill="#1e3a8a">
+    (Retained for 41 days with
+  </text>
+  <text x="890" y="215" font-size="16" text-anchor="middle" fill="#1e3a8a">
+    pseudonymized surrogates)
+  </text>
+
+  <!-- Audit Store contents -->
+  <g>
+    <circle cx="720" cy="260" r="4" fill="#2563eb"/>
+    <text x="730" y="265" font-size="14">Pseudonymized surrogate tokens</text>
+
+    <circle cx="720" cy="295" r="4" fill="#2563eb"/>
+    <text x="730" y="300" font-size="14">Access event timestamps</text>
+
+    <circle cx="720" cy="330" r="4" fill="#2563eb"/>
+    <text x="730" y="335" font-size="14">Policy change records</text>
+
+    <circle cx="720" cy="365" r="4" fill="#2563eb"/>
+    <text x="730" y="370" font-size="14">Revocation audit trail</text>
+  </g>
+
+  <!-- Retention arrow -->
+  <line x1="890" y1="430" x2="890" y2="480" stroke="#2563eb" stroke-width="4" marker-end="url(#arrowRetention)"/>
+  <text x="890" y="510" font-size="16" font-weight="bold" text-anchor="middle" fill="#2563eb">RETENTION</text>
+  <text x="890" y="535" font-size="13" text-anchor="middle" fill="#1e40af">Day 42 automated purge</text>
+  <text x="890" y="555" font-size="13" text-anchor="middle" fill="#1e40af">(enforces 41-day limit)</text>
+
+  <!-- Key Resolution Box -->
+  <rect x="200" y="600" width="800" height="70" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+  <text x="600" y="625" font-size="15" font-weight="bold" text-anchor="middle">CONFLICT-01 Resolution</text>
+  <text x="600" y="650" font-size="14" text-anchor="middle">Audit traceability preserved via stable surrogate keys</text>
+  <text x="600" y="670" font-size="14" text-anchor="middle">while direct personal identifiers are irreversibly eliminated</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowDelete" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <polygon points="0 0, 12 6, 0 12" fill="#dc2626"/>
+    </marker>
+    <marker id="arrowToken" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <polygon points="0 0, 12 6, 0 12" fill="#059669"/>
+    </marker>
+    <marker id="arrowRetention" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <polygon points="0 0, 12 6, 0 12" fill="#2563eb"/>
+    </marker>
+  </defs>
+</svg>
