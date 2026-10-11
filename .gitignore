@@ -27,6 +27,11 @@ build/
 *.jar
 target/
 
+# --- Assignment 01 Build Artifacts ---
+assignments/assignment-01/*.pdf
+assignments/assignment-01/*.local.*
+assignments/assignment-01/build/
+
 # --- Environment secrets ---
 .env*
 !.env.example

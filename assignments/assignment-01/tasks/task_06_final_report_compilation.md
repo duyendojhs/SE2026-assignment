@@ -49,6 +49,22 @@ We need to fix the visual diagram renderings in our LaTeX report (`assignments/a
 | Proposed using remote web API conversion without local fallback, risking build failures in offline/CI environments. | **Rejected** | Implemented deterministic local headless Chromium/Edge rendering pipeline guaranteeing zero external network dependencies and reproducible builds. |
 | Hardcoded student PII in title and header fields during template generation. | **Rejected** | Enforced zero hardcoded PII policy: preserved `\newcommand{\StudentID}{{{STUDENT\_ID}}}` placeholders resolved dynamically via `build_submission.py` and git config. |
 
+## Visual Audit Pass & Publication Polish (Urgent Sprint)
+
+### Defects Diagnosed & Remediated:
+1. **Transparent Alpha & Grey Bleed:** Original rasterizations had transparent alpha channels that rendered grey/translucent or clipped text against document pages in some PDF viewers. All 4 diagrams (`diagram_process.png`, `diagram_conflicts.png`, `diagram_sequence.png`, `diagram_architecture.png`) were regenerated with forced solid white background (`#FFFFFF`) and 40px internal margin padding via headless browser (`--default-background-color=0xffffffff`) and PIL post-processing.
+2. **Text-Heavy Section Elevation to IEEE/ACM Tables:**
+   - **Section 2:** Added structured 3x4 `Table 1: Systematic AI Failure Modes, Manifestations, and Engineering Countermeasures` and 6-layer Defense-in-Depth horizontal pipeline.
+   - **Section 3:** Embedded dense `Table 2: 1-Week AI-Augmented Operational Lifecycle with 5 Quality Gates`, clearly separating Inner Loop (hours) and Outer Loop (days).
+   - **Section 4:** Added `Table 3: Measurable Operational Outcomes` and `Table 4: Stakeholder Analysis, Operational Needs, and Conflict Points`.
+   - **Section 5:** Converted 4 User Stories into high-density `Table 6: Core User Stories with Gherkin Acceptance Criteria (Nominal, Boundary, and Failure Modes)`.
+   - **Section 6:** Replaced prose quality scenarios with consolidated 6-row `Table 7: Six-Part Quality Attribute Scenarios (ISO/IEC/IEEE 29148 Standard Layout)` and refined `Table 8: MoSCoW Feature Allocation Table Highlighting 5 Deferred Won't Have Items`.
+   - **Section 7:** Structured `Table 10: Bidirectional Traceability Matrix` connecting Outcomes $\leftrightarrow$ Stories $\leftrightarrow$ Quality Scenarios $\leftrightarrow$ Planned Tests.
+3. **Rigid Page Budget Compliance:**
+   - Geometry, table arraystretch (`0.88`), parskip (`1.8pt`), and figure widths (`0.48\linewidth`) calibrated so Sections 1 through 7 fit strictly on **Pages 1 through 6**.
+   - `\clearpage` guarantees the `Appendix: Human-in-the-Loop AI Audit Log` begins cleanly on Page 7. Total document: 8 pages (6-page core + 2-page appendix).
+   - Zero hardcoded student PII preserved.
+
 ## Artifacts and Git Execution
 
 Paths modified/created:
@@ -64,6 +80,7 @@ assignments/assignment-01/tasks/task_06_final_report_compilation.md
 
 ```bash
 git add assignments/assignment-01/report.tex assignments/assignment-01/assets/ assignments/assignment-01/tasks/task_06_final_report_compilation.md
-git commit -m "docs(assignment-01): render crisp png diagrams and embed into latex report (task-06)"
+git commit -m "fix(report): enhance diagrams with solid white backgrounds and add engineering tables (task-06)"
 git push origin main
 ```
+
